@@ -1,0 +1,26 @@
+---
+title: "Exercises"
+author: "Sergio Rodriguez Llana"
+date: "5/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 1
+
+- **bold** Title: Early postnatal expression data from mouse skeletal muscle stem cells
+- **bold** GEO identifier (GSE): GSE65927
+- Summary: Satellite cells are the primary source of stem cells for skeletal muscle growth and regeneration. Since adult stem cell maintenance involves a fine balance between intrinsic and extrinsic mechanisms, we performed genome-wide chronological expression profiling to identify the transcriptomic changes involved during early postnatal growth till acquisition of satellite cell quiescence.
+
+```{r}
+require(GEOquery)
+gse <- getGEO("GSE65927")
+names(gse)
+gse[[1]]
+esetFromGEO <- gse[[1]]
+```
+
+
