@@ -22,6 +22,8 @@ The different ages selected for sample isolation were P1-P12-P28 (P, postnatal d
 ```{r, results='hide'}
 require(GEOquery)
 gse <- getGEO("GSE65927")
+GSE6297
+
 ```
 
 ```{r}
