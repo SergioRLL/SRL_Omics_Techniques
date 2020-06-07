@@ -1,0 +1,215 @@
+---
+title: "Synthesis exercise"
+author: "Sergio Rodriguez Llana"
+date: "6/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+**GitHub respository:** https://github.com/SergioRLL/SRL_Omics_Techniques.git
+
+
+## Description of the study:
+
+**Title**: Expression data from livers of mice fed four different diets
+
+**GEO identifier (GSE)**: GSE6297
+
+**Organism**: *Mus musculus*
+
+**Summary of the study**: This study tries to analyse the differences between human and apes diet and how it infuncies them beyond their DNA differences. The human diet diverges from those of other primates in various aspects, such as having a high calorie and protein content, as well as being cooked. For the study researchers used a laboratory mouse model to identify gene expression differences related to dietary differences.
+
+**Experimental design**: Reseachers fed four groups of six genetically identical 8-week-old female NMR1 mice one of four diets:
+
+- Chimpanzee: A diet consisting of vegetables, fruit and yogurt identical to the diet fed to chimpanzees in their ape facility.
+- FastFood: A dient consisting exclusively of McDonalds (fast food).
+- HumanCafe: A dient cosisting of cooked food eaten by the lab staff in the institute cafeteria.
+- Pellet: A mouse pellet diet on which they were raised.
+
+At the end of a 2-week period, mice were euthanized by cervical dislocation and both liver and brain tissue were dissected. RNA was extracted from the 24 liver and brain samples as per established lab protocols and processed in two batches (containing equal numbers of individuals from all groups).
+
+```{r load packages, results='hide'}
+require(GEOquery)
+gse <- getGEO("GSE6297")
+```
+
+```{r}
+names(gse)
+gse[[1]]
+esetFromGEO <- gse[[1]]
+```
+
+## Description of the data: 
+
+The data of the study is displayed in a form of an Affymetrix Mouse Genome 430 2.0 Array.
+
+The Expression Matrix looks as follows:
+
+```{r}
+require(Biobase)
+head(exprs(esetFromGEO))
+dim(exprs(esetFromGEO))
+```
+
+It has 45101 rows corresponding to the genes and 24 columns that correspond to the biological samples used in the experiment.
+
+```{r}
+summary(exprs(esetFromGEO))
+```
+
+It seems that the data follows normality as the Mean and Median of all samples have a similar vaule. In addition, we observe that all samples have also similar values corresponding to Min. and Max. as well as 1st and 3rd quartiles between the samples.
+
+### PhenoData analysis:
+
+```{r}
+head(pData(esetFromGEO))
+ph_data <- pData(esetFromGEO)
+colnames(pData(esetFromGEO))
+ph_data$title
+```
+
+In the previous table we can see that the samples come form *Mus musculus*, from the titles we can see the different factors and goups which are discussed in the next section. Se can see that the response was quantified with RNA. There is also the information regarding the mouse strain, gender and age already described in the Experimental design above. It is described the treatment protocol (how the samples were obtained), the diet followed in each sample, etc. Other information like the label and hybridation protocols are also indicated.
+
+### Plots:
+
+```{r}
+boxplot(exprs(esetFromGEO))
+hist(exprs(esetFromGEO), main = "Histogram of expression values", xlab = "Expression values")
+```
+
+
+From these plots it is observed that the great majority of the data (>50%) is between 2 and 4, and that there are some outlier values, present in every sample that are higher and go far away from the sample mean and median.
+
+*********************************************************************************************************************************************************************************
+
+
+## Experimental design
+
+**Response variable**: gene expression
+
+**Sources of variation**:
+- **Treatment**: Diets: Chimpanzee, FastFood, HuamanCafe and Pellet.
+- **Groups**: Batch (2 fro every diet type).
+Number of experimental units per each combiantion of factors: 3
+
+**Sample size**: 24 samples
+
+**Experimental design**: Factorial Design (all the mouse individuals were genetically equal: 8-week-old female NMR1 mice).
+
+
+## Comparisons
+
+
+I think that, for the sake of the experiment, some reasonable comparisons that it could be interesing to observe are the ones between human food (including FastFood and HumanCafe diets), mouse food (Pellet diet) and the one corresponding to chipanzee.
+
+This could be interesting to observe the differences that the experiment aims between human and apes but also it may be interesing to observe the effect of this diets in mice and how are affeccting them.
+
+The comparisons to be performed are:
+
+To evaulate the differences between chimpanzee and human-type diets:
+- Chimp-FF
+- Chimp-HC
+
+To evaulate the effect that human and chimpanzee diets ecert in mice compared to a common diet for them:
+
+- P-FF
+- P-HC
+- P-Chimp
+
+
+
+## Design Matrix
+
+```{r designMatrix}
+myValues <- c(c(1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0), 
+              c(0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0), 
+              c(0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0), 
+              c(0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0),
+              c(0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0),
+              c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0),
+              c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0),
+              c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1))
+myMatrix <- matrix(myValues, ncol=8, byrow=F)
+colnames(myMatrix) <- c("Chimp_B1", "Chimp_B2", "FF_B1", "FF_B2", "HC_B1", "HC_B2", "P_B1", "P_B2")
+rownames(myMatrix) <- paste("sample", 
+                             c(paste("Chimp","B1",1:3, sep="_"),
+                               paste("Chimp","B2",1:3, sep="_"),
+                               paste("FF","B1",1:3, sep="_"),
+                               paste("FF","B2",1:3, sep="_"),
+                               paste("HC","B1",1:3, sep="_"),
+                               paste("HC","B2",1:3, sep="_"),
+                               paste("P","B1",1:3, sep="_"),
+                               paste("P","B2",1:3, sep="_")),sep=".")
+myMatrix
+```
+
+
+
+## Contrast Matrix
+
+
+**NOTE**: In order to make the comparisons analysis simpler I am going to do the comparisons within samples of the same Batch (B1, B2).
+
+
+```{r contrastMatrix}
+library(limma)
+contMat <- makeContrasts(Chimp_FF_B1=Chimp_B1-FF_B1,
+                       Chimp_FF_B2=Chimp_B2-FF_B2,
+                       Chimp_HC_B1=Chimp_B1-HC_B1,
+                       Chimp_HC_B2=Chimp_B2-HC_B2,
+                       P_FF_B1=P_B1-FF_B1,
+                       P_FF_B2=P_B2-FF_B2,
+                       P_HC_B1=P_B1-HC_B1,
+                       P_HC_B2=P_B2-HC_B2,
+                       P_Chimp_B1=P_B1-Chimp_B1,
+                       P_Chimp_B2=P_B2-Chimp_B2,
+                       levels=myMatrix)
+contMat
+```
+
+
+## Fitting a linear model, estimating the contrasts and generating a "topTable" and a "volcanoPlot"
+
+
+```{r fitModel}
+require(limma)
+dataMatrix <- exprs(esetFromGEO)
+fit<-lmFit(dataMatrix, myMatrix)
+fit.main<-contrasts.fit(fit, contMat)
+fit.main<-eBayes(fit.main)
+```
+
+```{r extractResults}
+topTab_Chimp_FF_B1 <- topTable (fit.main, number=nrow(fit.main), coef="Chimp_FF_B1", adjust="fdr"); head(topTab_Chimp_FF_B1)
+topTab_Chimp_FF_B2 <- topTable (fit.main, number=nrow(fit.main), coef="Chimp_FF_B2", adjust="fdr"); head(topTab_Chimp_FF_B2)
+topTab_Chimp_HC_B1 <- topTable (fit.main, number=nrow(fit.main), coef="Chimp_HC_B1", adjust="fdr"); head(topTab_Chimp_HC_B1)
+topTab_Chimp_HC_B2 <- topTable (fit.main, number=nrow(fit.main), coef="Chimp_HC_B2", adjust="fdr"); head(topTab_Chimp_HC_B2)
+topTab_P_FF_B1 <- topTable (fit.main, number=nrow(fit.main), coef="P_FF_B1", adjust="fdr"); head(topTab_P_FF_B1)
+topTab_P_FF_B2 <- topTable (fit.main, number=nrow(fit.main), coef="P_FF_B2", adjust="fdr"); head(topTab_P_FF_B2)
+topTab_P_HC_B1 <- topTable (fit.main, number=nrow(fit.main), coef="P_HC_B1", adjust="fdr"); head(topTab_P_HC_B1)
+topTab_P_HC_B2 <- topTable (fit.main, number=nrow(fit.main), coef="P_HC_B2", adjust="fdr"); head(topTab_P_HC_B2)
+topTab_P_Chimp_B1 <- topTable (fit.main, number=nrow(fit.main), coef="P_Chimp_B1", adjust="fdr"); head(topTab_P_Chimp_B1)
+topTab_P_Chimp_B2 <- topTable (fit.main, number=nrow(fit.main), coef="P_Chimp_B2", adjust="fdr"); head(topTab_P_Chimp_B2)
+```
+
+```{r showResults}
+volcanoplot(fit.main, coef="Chimp_FF_B1", highlight=10)
+volcanoplot(fit.main, coef="Chimp_FF_B2", highlight=10)
+volcanoplot(fit.main, coef="Chimp_HC_B1", highlight=10)
+volcanoplot(fit.main, coef="Chimp_HC_B2", highlight=10)
+volcanoplot(fit.main, coef="P_FF_B1", highlight=10)
+volcanoplot(fit.main, coef="P_FF_B2", highlight=10)
+volcanoplot(fit.main, coef="P_HC_B1", highlight=10)
+volcanoplot(fit.main, coef="P_HC_B2", highlight=10)
+volcanoplot(fit.main, coef="P_Chimp_B1", highlight=10)
+volcanoplot(fit.main, coef="P_Chimp_B2", highlight=10)
+```
+
+
+
+Sergio Rodriguez Llana
+
