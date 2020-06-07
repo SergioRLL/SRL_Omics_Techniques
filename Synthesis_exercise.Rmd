@@ -92,8 +92,10 @@ From these plots it is observed that the great majority of the data (>50%) is be
 **Response variable**: gene expression
 
 **Sources of variation**:
+
 - **Treatment**: Diets: Chimpanzee, FastFood, HuamanCafe and Pellet.
 - **Groups**: Batch (2 fro every diet type).
+
 Number of experimental units per each combiantion of factors: 3
 
 **Sample size**: 24 samples
@@ -111,6 +113,7 @@ This could be interesting to observe the differences that the experiment aims be
 The comparisons to be performed are:
 
 To evaulate the differences between chimpanzee and human-type diets:
+
 - Chimp-FF
 - Chimp-HC
 
